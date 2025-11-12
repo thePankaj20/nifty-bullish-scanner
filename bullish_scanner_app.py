@@ -96,10 +96,16 @@ if st.button("🚀 Run Bullish Scan"):
         df_results = df_results.sort_values(by=["Trend_%", "RSI", "VolRatio"], ascending=False)
         df_results = df_results.head(12).reset_index(drop=True)
 
-        print("\n📈 Top Bullish Stocks to Consider Buying Tomorrow:")
-        print(df_results)
-        df_results.to_csv("bullish_candidates.csv", index=False)
-        print("\n💾 Saved to bullish_candidates.csv")
-        st.download_button("💾 Download results as CSV", data=csv, file_name="bullish_candidates.csv")
+        st.subheader("📈 Top Bullish Stocks to Consider Buying Tomorrow")
+        st.dataframe(df_results, use_container_width=True)
+
+        # Prepare CSV for download
+        csv_data = df_results.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="💾 Download results as CSV",
+            data=csv_data,
+            file_name="bullish_candidates.csv",
+            mime="text/csv"
+        )
     else:
         st.warning("⚠️ No strong bullish setups found today.")
