@@ -77,3 +77,35 @@ if st.button("🚀 Run Bullish Scan"):
                 rr_ratio = (target - entry) / (entry - stoploss) if entry > stoploss else None
 
                 results.append({
+                    "Symbol": symbol.replace(".NS", ""),
+                    "Close": round(last["Close"], 2),
+                    "RSI": round(last["RSI"], 1),
+                    "EMA20": round(last["EMA20"], 2),
+                    "EMA50": round(last["EMA50"], 2),
+                    "Trend_%": round(trend_strength, 2),
+                    "VolRatio": round(volume_ratio, 2),
+                    "Score": score,
+                    "Entry": round(entry, 2),
+                    "Target": round(target, 2),
+                    "StopLoss": round(stoploss, 2),
+                    "R/R": round(rr_ratio, 2) if rr_ratio else "-"
+                })
+        except Exception:
+            continue
+
+    st.success("✅ Scan completed!")
+
+    if results:
+        df_results = pd.DataFrame(results)
+        df_results = df_results.sort_values(by=["Score", "Trend_%", "RSI", "VolRatio"], ascending=False)
+        df_results = df_results.head(12).reset_index(drop=True)
+
+        st.subheader("🏆 Top 10–12 Bullish Stocks for Tomorrow")
+        st.dataframe(df_results, use_container_width=True)
+
+        st.bar_chart(df_results.set_index("Symbol")[["RSI", "Trend_%", "VolRatio"]])
+
+        csv = df_results.to_csv(index=False).encode("utf-8")
+        st.download_button("💾 Download results as CSV", data=csv, file_name="bullish_candidates.csv")
+    else:
+        st.warning("⚠️ No strong bullish setups found today.")
