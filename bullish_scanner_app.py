@@ -12,18 +12,18 @@ st.caption("Smartly filtered top 10–12 stocks with strongest upside potential 
 # Load stock list automatically from repo or via upload
 default_csv_path = "nifty500list.csv"
 
-if os.path.exists(default_csv_path):
-    st.success("✅ Loaded NIFTY 500 list from repo (nifty500list.csv)")
-    df_symbols = pd.read_csv(default_csv_path)
+#if os.path.exists(default_csv_path):
+ #   st.success("✅ Loaded NIFTY 500 list from repo (nifty500list.csv)")
+  #  df_symbols = pd.read_csv(default_csv_path)
+   # symbols = [sym + ".NS" for sym in df_symbols["Symbol"].tolist()]
+#else:
+uploaded_file = st.file_uploader("📂 Upload your NIFTY 500 CSV file", type=["csv"])
+if uploaded_file:
+    df_symbols = pd.read_csv(uploaded_file)
     symbols = [sym + ".NS" for sym in df_symbols["Symbol"].tolist()]
 else:
-    uploaded_file = st.file_uploader("📂 Upload your NIFTY 500 CSV file", type=["csv"])
-    if uploaded_file:
-        df_symbols = pd.read_csv(uploaded_file)
-        symbols = [sym + ".NS" for sym in df_symbols["Symbol"].tolist()]
-    else:
-        st.warning("Please upload `nifty500list.csv` to begin scanning.")
-        st.stop()
+    st.warning("Please upload `nifty500list.csv` to begin scanning.")
+    st.stop()
 
 st.info(f"📊 Loaded {len(symbols)} symbols from stock list")
 
