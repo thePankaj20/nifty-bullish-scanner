@@ -54,28 +54,20 @@ if st.button("🚀 Run Bullish Scan"):
             df.dropna(inplace=True)
 
             last = df.iloc[-1]
+
             last_avg_vol = df["AvgVol20"].iloc[-1]
             volume_ratio = last["Volume"] / last_avg_vol if last_avg_vol else 1
+
             trend_strength = ((last["EMA20"] - last["EMA50"]) / last["EMA50"]) * 100
             price_position = (last["Close"] / last["EMA20"]) * 100
 
-            # Scoring system
-            score = 0
-            if last["EMA20"] > last["EMA50"]:
-                score += 2
-            elif last["EMA20"] >= last["EMA50"] * 0.97:
-                score += 1
-
-            if last["RSI"] > 55: score += 2
-            elif last["RSI"] > 45: score += 1           
-
-            if last["Close"] > last["EMA20"]:
-                score += 1
-            if volume_ratio > 0.9:
-                score += 1
+            cond_ema = last["EMA20"] >= last["EMA50"] * 0.99
+            cond_rsi = 50 < last["RSI"] < 70
+            cond_price = 98 <= price_position <= 108
+            cond_volume = volume_ratio > 1.1
 
             # Only strong setups
-            if score >= 3:
+            if cond_ema and cond_rsi and cond_price and cond_volume:
                 entry = last["Close"] * 1.005
                 target = entry * 1.03
                 stoploss = last["EMA20"]
