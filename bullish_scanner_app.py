@@ -4,19 +4,30 @@ import pandas_ta as ta
 import pandas as pd
 from tqdm import tqdm
 import time
+import os
+
 
 st.set_page_config(page_title="📈 Nifty 500 Bullish Scanner", layout="wide")
 
 st.title("📈 Nifty 500 Bullish Scanner")
 st.caption("Scan for potential bullish stocks based on EMA, RSI, and Volume trends")
 
-uploaded_file = st.file_uploader("📂 Upload your NIFTY 500 CSV file", type=["csv"])
-if uploaded_file:
-    df_symbols = pd.read_csv(uploaded_file)
+# Try to load stocks.csv from repo
+default_csv_path = "nifty500list.csv"
+
+if os.path.exists(default_csv_path):
+    st.success("✅ Loaded stock list from repo (stocks.csv)")
+    df_symbols = pd.read_csv(default_csv_path)
     symbols = [sym + ".NS" for sym in df_symbols["Symbol"].tolist()]
 else:
-    st.warning("Please upload your `nifty500list.csv` file first.")
-    st.stop()
+    # Fallback to manual upload
+    uploaded_file = st.file_uploader("📂 Upload your NIFTY 500 CSV file", type=["csv"])
+    if uploaded_file:
+        df_symbols = pd.read_csv(uploaded_file)
+        symbols = [sym + ".NS" for sym in df_symbols["Symbol"].tolist()]
+    else:
+        st.warning("Please upload your `stocks.csv` file to start scanning.")
+        st.stop()
 
 if st.button("🚀 Run Scan"):
     results = []
