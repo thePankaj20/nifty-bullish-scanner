@@ -4,7 +4,7 @@ import yfinance as yf
 import pandas_ta as ta
 import os
 
-st.set_page_config(page_title="Bullish Stock Scanner", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Bullish Stock Scanner", page_icon="📈", layout="wide", menu_items=None)
 
 st.title("📈 NIFTY 500 Bullish Stock Scanner")
 st.caption("Smartly filtered top 10–12 stocks with strongest upside potential for tomorrow’s trade")
