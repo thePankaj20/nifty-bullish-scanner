@@ -5,6 +5,13 @@ import pandas_ta as ta
 import os
 
 st.set_page_config(page_title="Bullish Stock Scanner", page_icon="📈", layout="wide", menu_items=None)
+hide_footer = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_footer, unsafe_allow_html=True)
 
 st.title("📈 NIFTY 500 Bullish Stock Scanner")
 st.caption("Smartly filtered top 10–12 stocks with strongest upside potential for tomorrow’s trade")
@@ -56,17 +63,15 @@ if st.button("🚀 Run Bullish Scan"):
             score = 0
             if last["EMA20"] > last["EMA50"]:
                 score += 2
-            elif last["EMA20"] >= last["EMA50"] * 0.98:
+            elif last["EMA20"] >= last["EMA50"] * 0.97:
                 score += 1
 
-            if 52 <= last["RSI"] <= 68:
-                score += 1
-            elif last["RSI"] > 68:
-                score += 2
+            if last["RSI"] > 55: score += 2
+            elif last["RSI"] > 45: score += 1           
 
             if last["Close"] > last["EMA20"]:
                 score += 1
-            if volume_ratio > 1.05:
+            if volume_ratio > 0.9:
                 score += 1
 
             # Only strong setups
