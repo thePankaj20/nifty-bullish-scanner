@@ -56,21 +56,21 @@ if st.button("🚀 Run Bullish Scan"):
             score = 0
             if last["EMA20"] > last["EMA50"]:
                 score += 2
-            elif last["EMA20"] >= last["EMA50"] * 0.99:
+            elif last["EMA20"] >= last["EMA50"] * 0.98:
                 score += 1
 
-            if 55 <= last["RSI"] <= 65:
+            if 52 <= last["RSI"] <= 68:
                 score += 1
-            elif last["RSI"] > 65:
+            elif last["RSI"] > 68:
                 score += 2
 
             if last["Close"] > last["EMA20"]:
                 score += 1
-            if volume_ratio > 1.2:
+            if volume_ratio > 1.05:
                 score += 1
 
             # Only strong setups
-            if score >= 4:
+            if score >= 3:
                 entry = last["Close"] * 1.005
                 target = entry * 1.03
                 stoploss = last["EMA20"]
