@@ -64,7 +64,7 @@ if st.button("🚀 Run Bullish Scan"):
             cond_ema = last["EMA20"] >= last["EMA50"] * 0.99
             cond_rsi = 50 < last["RSI"] < 70
             cond_price = 98 <= price_position <= 108
-            cond_volume = volume_ratio > 1.1
+            cond_volume = volume_ratio > 0.9
 
             # Only strong setups
             if cond_ema and cond_rsi and cond_price and cond_volume:
@@ -81,7 +81,6 @@ if st.button("🚀 Run Bullish Scan"):
                     "EMA50": round(last["EMA50"], 2),
                     "Trend_%": round(trend_strength, 2),
                     "VolRatio": round(volume_ratio, 2),
-                    "Score": score,
                     "Entry": round(entry, 2),
                     "Target": round(target, 2),
                     "StopLoss": round(stoploss, 2),
@@ -94,7 +93,7 @@ if st.button("🚀 Run Bullish Scan"):
 
     if results:
         df_results = pd.DataFrame(results)
-        df_results = df_results.sort_values(by=["Score", "Trend_%", "RSI", "VolRatio"], ascending=False)
+        df_results = df_results.sort_values(by=["Trend_%", "RSI", "VolRatio"], ascending=False)
         df_results = df_results.head(12).reset_index(drop=True)
 
         st.subheader("🏆 Top 10–12 Bullish Stocks for Tomorrow")
