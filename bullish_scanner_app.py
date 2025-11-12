@@ -5,13 +5,6 @@ import pandas_ta as ta
 import os
 
 st.set_page_config(page_title="Bullish Stock Scanner", page_icon="📈", layout="wide", menu_items=None)
-hide_footer = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_footer, unsafe_allow_html=True)
 
 st.title("📈 NIFTY 500 Bullish Stock Scanner")
 st.caption("Smartly filtered top 10–12 stocks with strongest upside potential for tomorrow’s trade")
