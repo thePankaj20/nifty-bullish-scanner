@@ -8,6 +8,23 @@ import os
 
 
 st.set_page_config(page_title="📈 Nifty 500 Bullish Scanner", layout="wide")
+hide_github_icon = """
+    <style>
+    /* Hide the GitHub corner link Streamlit adds on cloud deployments */
+    [data-testid="stToolbar"] {
+        visibility: hidden;
+        height: 0%;
+        position: fixed;
+    }
+    </style>
+"""
+st.markdown(hide_github_icon, unsafe_allow_html=True)
+
+
+
+
+
+
 
 st.title("📈 Nifty 500 Bullish Scanner")
 st.caption("Scan for potential bullish stocks based on EMA, RSI, and Volume trends")
