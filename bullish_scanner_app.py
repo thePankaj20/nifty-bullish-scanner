@@ -30,6 +30,10 @@ st.info(f"📊 Loaded {len(symbols)} symbols from stock list")
 # -------------------- Safe Download Function --------------------
 @st.cache_data(ttl=3600)
 def safe_download(symbol):
+    if i < 5:  # show only first 5 stocks for debug
+        st.write(f"🧩 {symbol}: downloaded {len(df)} rows")
+        if not df.empty:
+            st.write(df.tail(2))
     """Download with retry to handle Yahoo throttling."""
     for attempt in range(3):
         try:
@@ -45,8 +49,14 @@ if st.button("🚀 Run Bullish Scan"):
     bullish_stocks = []
     progress = st.progress(0)
     total = len(symbols)
-
+    data_ok = 0
+    empty_count = 0
     for i, symbol in enumerate(symbols):
+        if df.empty:
+            empty_count += 1
+            continue
+        else:
+            data_ok += 1
         progress.progress((i + 1) / total)
         time.sleep(0.2)  # avoid throttling
 
@@ -75,10 +85,10 @@ if st.button("🚀 Run Bullish Scan"):
             price_position = (last["Close"] / last["EMA20"]) * 100
 
             # Conditions (same as your working script)
-            cond_ema = last["EMA20"] >= last["EMA50"] * 0.99
-            cond_rsi = 50 < last["RSI"] < 70
-            cond_price = 98 <= price_position <= 108
-            cond_volume = volume_ratio > 0.9
+            cond_ema = last["EMA20"] > last["EMA50"]
+            cond_rsi = 40 < last["RSI"] < 75
+            cond_price = 95 <= price_position <= 110
+            cond_volume = volume_ratio > 0.8
 
             if cond_ema and cond_rsi and cond_price and cond_volume:
                 entry = last["Close"] * 1.005
@@ -104,6 +114,7 @@ if st.button("🚀 Run Bullish Scan"):
             continue
 
     # -------------------- Display Results --------------------
+    st.write(f"📉 Empty DataFrames: {empty_count}, ✅ With Data: {data_ok}")
     st.success("✅ Scan completed!")
 
     if bullish_stocks:
