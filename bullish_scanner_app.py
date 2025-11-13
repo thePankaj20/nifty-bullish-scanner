@@ -11,7 +11,13 @@ st.set_page_config(page_title="📈 Nifty 500 Bullish Scanner", layout="wide")
 
 st.title("📈 Nifty 500 Bullish Scanner")
 st.caption("Scan for potential bullish stocks based on EMA, RSI, and Volume trends")
-
+# -------------------- Sidebar Filter Controls --------------------
+st.sidebar.header("⚙️ Filter Settings")
+ema_gap = st.sidebar.slider("📈 Min EMA20 above EMA50 (%)", 0.0, 5.0, 2.0, 0.1)
+rsi_min, rsi_max = st.sidebar.slider("💪 RSI Range", 40, 80, (55, 68))
+price_min, price_max = st.sidebar.slider("💰 Price vs EMA20 (%)", 90, 115, (100, 106))
+vol_min = st.sidebar.slider("📊 Min Volume Ratio (vs 20-day avg)", 0.5, 2.0, 1.2, 0.1)
+st.sidebar.caption("⬆️ Adjust the sliders to make the scan stricter or looser")
 # Try to load stocks.csv from repo
 default_csv_path = "nifty500list.csv"
 
@@ -58,10 +64,11 @@ if st.button("🚀 Run Scan"):
             trend_strength = ((last["EMA20"] - last["EMA50"]) / last["EMA50"]) * 100
             price_position = (last["Close"] / last["EMA20"]) * 100
 
-            cond_ema = last["EMA20"] >= last["EMA50"] * 1.02
-            cond_rsi = 55 < last["RSI"] < 68
-            cond_price = 100 <= price_position <= 106
-            cond_volume = volume_ratio > 1.2
+            # --- Apply UI-based filters ---
+            cond_ema = trend_strength > ema_gap
+            cond_rsi = rsi_min < last["RSI"] < rsi_max
+            cond_price = price_min <= price_position <= price_max
+            cond_volume = volume_ratio > vol_min
             cond_trend = trend_strength > 1.5
 
             if cond_ema and cond_rsi and cond_price and cond_volume and cond_trend:
