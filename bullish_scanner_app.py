@@ -58,12 +58,13 @@ if st.button("🚀 Run Scan"):
             trend_strength = ((last["EMA20"] - last["EMA50"]) / last["EMA50"]) * 100
             price_position = (last["Close"] / last["EMA20"]) * 100
 
-            cond_ema = last["EMA20"] >= last["EMA50"] * 0.99
-            cond_rsi = 50 < last["RSI"] < 70
-            cond_price = 98 <= price_position <= 108
-            cond_volume = volume_ratio > 0.9
+            cond_ema = last["EMA20"] >= last["EMA50"] * 1.02
+            cond_rsi = 55 < last["RSI"] < 68
+            cond_price = 100 <= price_position <= 106
+            cond_volume = volume_ratio > 1.2
+            cond_trend = trend_strength > 1.5
 
-            if cond_ema and cond_rsi and cond_price and cond_volume:
+            if cond_ema and cond_rsi and cond_price and cond_volume and cond_trend:
                 entry = last["Close"] * 1.005
                 target = entry * 1.03
                 stoploss = last["EMA20"]
