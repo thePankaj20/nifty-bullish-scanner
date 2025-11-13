@@ -5,15 +5,16 @@ import pandas_ta as ta
 import time
 import os
 
+# -------------------- Streamlit Page Setup --------------------
 st.set_page_config(page_title="📈 Bullish Stock Scanner", layout="wide")
 st.title("📈 NIFTY 500 Bullish Stock Scanner")
-st.caption("Find top bullish stocks from NIFTY 500 — anytime, anywhere!")
+st.caption("Find top bullish stocks from NIFTY 500 anytime, anywhere!")
 
-# --- Load stock list ---
+# -------------------- Load Stock List --------------------
 default_csv_path = "nifty500list.csv"
 
 if os.path.exists(default_csv_path):
-    st.success("✅ Loaded nifty500list.csv")
+    st.success("✅ Loaded nifty500list.csv from repo")
     df = pd.read_csv(default_csv_path)
     symbols = [sym + ".NS" for sym in df["Symbol"].tolist()]
 else:
@@ -24,38 +25,47 @@ else:
     df = pd.read_csv(uploaded)
     symbols = [sym + ".NS" for sym in df["Symbol"].tolist()]
 
-# --- Safe download helper ---
+st.info(f"📊 Loaded {len(symbols)} symbols from stock list")
+
+# -------------------- Safe Download Function --------------------
+@st.cache_data(ttl=3600)
 def safe_download(symbol):
-    for _ in range(3):
+    """Download with retry to handle Yahoo throttling."""
+    for attempt in range(3):
         try:
-            df = yf.download(symbol, period="6mo", interval="1d", progress=False, auto_adjust=False)
+            df = yf.download(symbol, period="6mo", interval="1d", progress=False)
             if not df.empty:
                 return df
         except Exception:
             time.sleep(1)
     return pd.DataFrame()
 
-# --- Run Scan ---
+# -------------------- Run Button --------------------
 if st.button("🚀 Run Bullish Scan"):
     bullish_stocks = []
     progress = st.progress(0)
+    total = len(symbols)
 
     for i, symbol in enumerate(symbols):
-        progress.progress((i + 1) / len(symbols))
-        time.sleep(0.2)
+        progress.progress((i + 1) / total)
+        time.sleep(0.2)  # avoid throttling
 
         df = safe_download(symbol)
+
         if df.empty:
+            st.write(f"⚠️ {symbol}: no data from Yahoo")
             continue
 
         try:
+            # Add indicators
             df["EMA20"] = ta.ema(df["Close"], length=20)
             df["EMA50"] = ta.ema(df["Close"], length=50)
             df["RSI"] = ta.rsi(df["Close"], length=14)
             df["AvgVol20"] = df["Volume"].rolling(20).mean()
             df.dropna(inplace=True)
 
-            if df.empty:
+            if df.empty or len(df) < 50:
+                st.write(f"⚠️ {symbol}: insufficient valid data ({len(df)} rows)")
                 continue
 
             last = df.iloc[-1]
@@ -64,6 +74,7 @@ if st.button("🚀 Run Bullish Scan"):
             trend_strength = ((last["EMA20"] - last["EMA50"]) / last["EMA50"]) * 100
             price_position = (last["Close"] / last["EMA20"]) * 100
 
+            # Conditions (same as your working script)
             cond_ema = last["EMA20"] >= last["EMA50"] * 0.99
             cond_rsi = 50 < last["RSI"] < 70
             cond_price = 98 <= price_position <= 108
@@ -88,9 +99,11 @@ if st.button("🚀 Run Bullish Scan"):
                     "StopLoss": round(stoploss, 2),
                     "R/R": round(rr_ratio, 2) if rr_ratio else "-"
                 })
-        except Exception:
+        except Exception as e:
+            st.write(f"⚠️ Error for {symbol}: {e}")
             continue
 
+    # -------------------- Display Results --------------------
     st.success("✅ Scan completed!")
 
     if bullish_stocks:
@@ -98,10 +111,10 @@ if st.button("🚀 Run Bullish Scan"):
         df_results = df_results.sort_values(by=["Trend_%", "RSI", "VolRatio"], ascending=False)
         df_results.reset_index(drop=True, inplace=True)
 
-        st.subheader("📊 Top Bullish Stocks")
+        st.subheader("📊 Top Bullish Stocks for Tomorrow")
         st.dataframe(df_results, use_container_width=True)
 
         csv_data = df_results.to_csv(index=False).encode('utf-8')
         st.download_button("💾 Download CSV", csv_data, "bullish_candidates.csv", "text/csv")
     else:
-        st.warning("⚠️ No bullish setups found today.")
+        st.warning("⚠️ No bullish setups found today. Check above logs — likely data empty or throttled.")
